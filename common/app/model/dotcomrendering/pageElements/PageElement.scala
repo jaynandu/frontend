@@ -103,9 +103,16 @@ object ProfileAtomBlockElementItem {
   implicit val GuideAtomBlockElementItemWrites: Writes[ProfileAtomBlockElementItem] = Json.writes[ProfileAtomBlockElementItem]
 }
 case class ProfileAtomBlockElement(id: String, label: String, title: String, img: Option[String], html: String, items: List[ProfileAtomBlockElementItem], credit: String) extends PageElement
-
 case class PullquoteBlockElement(html: Option[String], role: Role, attribution: Option[String]) extends PageElement
 case class QABlockElement(id: String, title: String, img: Option[String], html: String, credit: String) extends PageElement
+case class QuizAtomAnswer(id: String, text: String, revealText: Option[String], isCorrect: Boolean)
+case class QuizAtomQuestion(id: String, text: String, answers: Seq[QuizAtomAnswer], imageUrl: Option[String])
+object QuizAtomBlockElement {
+  implicit  val QuizAtomAnswerWrites: Writes[QuizAtomAnswer] = Json.writes[QuizAtomAnswer]
+  implicit val QuizAtomQuestionWrites: Writes[QuizAtomQuestion] = Json.writes[QuizAtomQuestion]
+  implicit val QuizAtomBlockElementWrites: Writes[QuizAtomBlockElement] = Json.writes[QuizAtomBlockElement]
+}
+case class QuizAtomBlockElement(id: String, questions: Seq[QuizAtomQuestion]) extends PageElement
 case class RichLinkBlockElement(url: Option[String], text: Option[String], prefix: Option[String], role: Role, sponsorship: Option[Sponsorship]) extends PageElement
 case class SoundcloudBlockElement(html: String, id: String, isTrack: Boolean, isMandatory: Boolean) extends PageElement
 case class SpotifyBlockElement(embedUrl: Option[String], height: Option[Int], width: Option[Int], title: Option[String], caption: Option[String]) extends PageElement
@@ -154,6 +161,7 @@ object PageElement {
       case _: ProfileAtomBlockElement => true
       case _: PullquoteBlockElement => true
       case _: QABlockElement => true
+      case _: QuizAtomBlockElement => true
       case _: RichLinkBlockElement => true
       case _: SoundcloudBlockElement => true
       case _: SpotifyBlockElement => true
@@ -419,6 +427,21 @@ object PageElement {
               )),
             ))
           }
+          case Some(quizAtom: QuizAtom) => Some(QuizAtomBlockElement(
+            id  = quizAtom.id,
+            questions = quizAtom.content.questions.map { q => QuizAtomQuestion(
+                id = q.id,
+                text = q.text,
+                answers = q.answers.map(a => QuizAtomAnswer(
+                  id = a.id,
+                  text = a.text,
+                  revealText = a.revealText,
+                  isCorrect = a.weight==1
+                )),
+                imageUrl = q.imageMedia.flatMap(i => ImgSrc.getAmpImageUrl(i.imageMedia))
+              )
+            }
+          ))
 
           // Here we capture all the atom types which are not yet supported.
           // ContentAtomBlockElement is mapped to null in the DCR source code.
