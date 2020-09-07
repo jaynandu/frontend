@@ -17,7 +17,7 @@ const diffAgainstRemote = branch =>
             '--name-only',
             'HEAD',
             `origin/${branch}`,
-            '^origin/master', // excluding changes already in origin/master
+            '^origin/main', // excluding changes already in origin/master
         ])
         .then(diffs => diffs.split('\n'));
 
