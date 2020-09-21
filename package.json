@@ -143,7 +143,6 @@
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.29.5",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-cli": "^3.3.12",
     "webpack-merge": "^4.1.0",
     "webpack-visualizer-plugin": "^0.1.11",
     "yargs": "^11.0.0"
